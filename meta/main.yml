@@ -25,6 +25,4 @@ galaxy_info:
     - shinobi pro
     - shinobi ce
 
-dependencies:
-  - charliemaiors.nodejs
-  - charliemaiors.ffmpeg
+dependencies: []
