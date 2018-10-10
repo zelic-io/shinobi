@@ -1,0 +1,11 @@
+---
+random_key: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+ce_version: "https://gitlab.com/Shinobi-Systems/ShinobiCE.git"
+pro_version: "https://gitlab.com/Shinobi-Systems/Shinobi.git"
+ce: false
+pro: true
+lts: true
+startup: true
+shinobi_user: "shinobi"
+shinobi_version: "HEAD"
+dbhash: "md5"

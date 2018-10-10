@@ -1,0 +1,8 @@
+---
+- name: Install git when archlinux
+  become: true
+  pacman:
+    state: present
+    upgrade: true
+    name: git
+    update_cache: true

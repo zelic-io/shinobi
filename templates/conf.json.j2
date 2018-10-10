@@ -1,0 +1,18 @@
+{
+  "port": {{ shinobi_port }},
+  "addStorage": [
+      {"name":"second","path":"__DIR__/videos2"}
+  ],
+  "passwordType": "{{ dbhash }}", 
+  "db": {
+    "host": "{{ db_host }}",
+    "user": "{{ shinobi_user }}",
+    "password": "{{ shinobi_pass }}",
+    "database": "ccio",
+    "port":3306
+  },
+  "cron":{
+      "key":"{{ random_key }}"
+  },
+  "pluginKeys":{}
+}

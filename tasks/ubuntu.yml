@@ -1,0 +1,8 @@
+---
+- name: install prerequisites
+  become: true
+  apt:
+    update_cache: true
+    force_apt_get: true
+    name: git
+    state: present

@@ -1,0 +1,4 @@
+---
+db_host: "localhost"
+shinobi_pass: "test"
+shinobi_port: "8080"

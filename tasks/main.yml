@@ -1,0 +1,68 @@
+---
+- name: import ubuntu tasks when target host is ubuntu
+  import_tasks: ubuntu.yml
+  when:
+    - ansible_distribution == 'Ubuntu'
+- name: import CentOS/Red Hat tasks when host is CentOS/REL
+  import_tasks: centos.yml
+  when:
+    - ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+- name: import ArchLinux tasks when host is Archlinux
+  import_tasks: archlinux.yml
+  when:
+    - ansible_distribution == 'Archlinux'
+- name: clone shinobi ce
+  git:
+    dest: "{{ ansible_env.HOME }}/Shinobi"
+    repo: "{{ ce_version }}"
+    clone: true
+    update: true
+    version: "{{ shinobi_version }}"
+  when: ce
+- name: clone shinobi pro
+  git:
+    dest: "{{ ansible_env.HOME }}/Shinobi"
+    repo: "{{ pro_version }}"
+    clone: true
+    update: true
+    version: "{{ shinobi_version }}"
+  when: pro
+- name: copy super user credentials
+  copy:
+    dest: "{{ ansible_env.HOME }}/Shinobi/super.json"
+    src: super.json
+- name: copy configuration
+  template:
+    dest: "{{ ansible_env.HOME }}/Shinobi/conf.json"
+    src: conf.json.j2
+- name: remove sqlite dependency when not lts
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/Shinobi/package.json"
+    state: absent
+    regexp: '\"sqlite3\"'
+  when: not lts
+- name: Install npm requirements
+  become: true
+  npm:
+    path: Shinobi/
+- name: Install pm2
+  become: true
+  npm:
+    name: pm2
+    global: true
+    state: present
+- name: Start shinobi camera and cron
+  become: true
+  command: pm2 start {{ item }}
+  args:
+    chdir: "{{ ansible_env.HOME }}/Shinobi"
+  with_items:
+    - camera.js
+    - cron.js
+  changed_when: false
+- name: Start shinobi at boot
+  become: true
+  command: pm2 startup && pm2 save
+  args:
+    chdir: "{{ ansible_env.HOME }}/Shinobi"
+  when: startup
