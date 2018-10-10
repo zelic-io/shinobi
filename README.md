@@ -1,6 +1,8 @@
 Shinobi
 =========
 
+[![Build Status](https://travis-ci.org/charliemaiors/shinobi.svg?branch=master)](https://travis-ci.org/charliemaiors/shinobi)
+
 Shinobi role will deploy [Shinobi CCTV](https://shinobi.video/) system Ubuntu, CentOS or Archlinux systems. Using variables is possible to deploy the CE or the Pro version.
 
 Requirements

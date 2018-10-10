@@ -26,5 +26,5 @@ galaxy_info:
     - shinobi ce
 
 dependencies:
-  - nodejs
-  - ffmpeg
+  - charliemaiors.nodejs
+  - charliemaiors.ffmpeg
