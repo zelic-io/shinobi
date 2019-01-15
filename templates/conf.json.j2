@@ -11,6 +11,23 @@
     "database": "ccio",
     "port":3306
   },
+  {% if (cluster ~ '').lower() == "true" %}
+    {% if cluster_role == "master" %}
+    "childNodes": {
+      "enabled" : true,
+      "mode" : "master",
+      "port" : {{ master_port }},
+      "key" : "{{ master_key }}"
+    },
+    {% elif cluster_role == "child" %}
+    "childNodes": {
+        "enabled" : true,
+        "mode" : "child",
+        "host" : "{{ master_ip }}:{{ master_port }}",
+        "key" : "{{ master_key }}"
+    },
+    {% endif %}
+  {% endif %}
   "cron":{
       "key":"{{ random_key }}"
   },

@@ -31,6 +31,10 @@
   copy:
     dest: "{{ ansible_env.HOME }}/Shinobi/super.json"
     src: super.json
+- name: define master key when is not defined and cluster is enabled
+  set_fact:
+    master_key: "{{ random_key }}"
+  when: cluster and (master_key is not defined)
 - name: copy configuration
   template:
     dest: "{{ ansible_env.HOME }}/Shinobi/conf.json"

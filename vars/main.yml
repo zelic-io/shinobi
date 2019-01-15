@@ -2,3 +2,7 @@
 db_host: "localhost"
 shinobi_pass: "test"
 shinobi_port: "8080"
+cluster: false
+cluster_role: "master"
+master_port: 8288
+master_key: "testmasterkey"
