@@ -14,7 +14,7 @@ with shinobi database and schemas already created, or can be deployed using [shi
 Role Variables
 --------------
 
-This role requires three main variables:
+This role requires three main variables (except if is a childNode, see clustering):
 
 ```yaml
 db_host: "localhost"
@@ -43,6 +43,17 @@ dbhash: "md5"
 The ```random_key``` variable is used for random password generation. The ```ce/pro_version``` are references for Shinobi Code repository for community and pro version respectively. The ```ce/pro``` flags defines which version download. The ```lts``` flag represent which version of node is installed in order to avoid to install sqlite dependencies (for v8 of nodejs sqlite installation from npm fails).
 The ```shinobi_user``` is the default shinobi user for database, ```dbhash``` is the hashing algorithm used for password store (see [Depdendencies section](#Dependencies)).
 The ```shinobi_version``` is the commit hash or branch which has to be cloned from shionbi repository.
+
+## Clustering
+
+With the introduction of [child nodes](https://shinobi.video/articles/2018-05-23-how-to-cluster-multiple-shinobi-child-nodes) there are two extra variables that could be defined.
+
+```yaml
+cluster: true or false
+cluster_role: "child" or "master"
+```
+
+if ```cluster_role``` is set to child also ```master_key``` and ```master_ip``` must be provided
 
 Dependencies
 ------------
@@ -83,30 +94,41 @@ This is an example with an all-in-one installation:
 This is an example with database on a different machine:
 
 ```yaml
-- name: Deploy shinobi db
+-- name: Deploy shinobi db
   hosts: shinobi-db
-  vars:
-    shinobi_pass: "shinobi-test-machine"
-    user_pass: "shinobi-test"
-    user_mail: "ccio@m03.ca"
   roles:
-    - charliemaiors.shinobi-db
+    - { role: charliemaiors.shinobi-db, shinobi_pass: "shinobi-test-machine", user_pass: "shinobi-test", user_mail: "ccio@m03.ca"}
 
 - name: Deploy shinobi frontend
   hosts: shinobi-fe
-  vars:
-    db_host: "{{ hostvars[groups['shinobi-db'][0]].ansible_host }}" # db host machine ip
-    shinobi_port: "8080"
-    user_pass: "shinobi-test"
-    user_mail: "ccio@m03.ca"
-    shinobi_pass: "shinobi-test-machine"
-    startup: true
-    ce: false
-    pro: true
   roles:
     - charliemaiors.nodejs
     - charliemaiors.ffmpeg
-    - charliemaiors.shinobi
+    - { role: charliemaiors.shinobi,  db_host: "{{ hostvars[groups['shinobi-db'][0]].ansible_host }}", shinobi_port: "8080", user_pass: "shinobi-test", user_mail: "ccio@m03.ca", shinobi_pass: "shinobi-test-machine", startup: true, ce: false, pro: true }
+```
+
+This is an example with database on a different machine and child nodes:
+
+```yaml
+- name: Deploy shinobi db
+  hosts: shinobi-db
+  roles:
+    - { role: charliemaiors.shinobi-db, shinobi_pass: "shinobi-test-machine", user_pass: "shinobi-test", user_mail: "ccio@m03.ca"}
+
+- name: Deploy shinobi master
+  hosts: shinobi-master
+  roles:
+    - charliemaiors.nodejs
+    - charliemaiors.ffmpeg
+    - { role: charliemaiors.shinobi,  db_host: "{{ hostvars[groups['shinobi-db'][0]].ansible_host }}", shinobi_port: "8080", user_pass: "shinobi-test", user_mail: "ccio@m03.ca", shinobi_pass: "shinobi-test-machine", startup: true, ce: false, pro: true, cluster: true, cluster_role: "master", master_key: "test" }
+
+- name: Deploy shinobi child nodes
+  hosts: shinobi-childs
+  roles:
+    - charliemaiors.nodejs
+    - charliemaiors.ffmpeg
+    - { role: charliemaiors.shinobi,  master_ip: "{{ hostvars[groups['shinobi-master'][0]].ansible_host }}", cluster: true, cluster_role: "child", master_key: "test" }
+
 ```
 
 License
