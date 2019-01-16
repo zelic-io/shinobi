@@ -55,18 +55,18 @@
     name: pm2
     global: true
     state: present
-- name: Start shinobi camera and cron
-  become: true
-  command: pm2 start {{ item }}
+- name: Start shinobi camera
+  command: pm2 start camera.js
   args:
     chdir: "{{ ansible_env.HOME }}/Shinobi"
-  with_items:
-    - camera.js
-    - cron.js
   changed_when: false
+- name: Start shinobi cron when is on the master node
+  command: pm2 start cron.js
+  args:
+    chdir: "{{ ansible_env.HOME }}/Shinobi"
+  when: (cluster and cluster_role=="master") or (not cluster)
 - name: Start shinobi at boot
-  become: true
-  command: pm2 startup && pm2 save
+  command: pm2 save && pm2 startup
   args:
     chdir: "{{ ansible_env.HOME }}/Shinobi"
   when: startup
