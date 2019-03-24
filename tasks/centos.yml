@@ -4,4 +4,4 @@
   yum:
     update_cache: true
     name: git
-    state: latest
+    state: present
