@@ -21,9 +21,9 @@ galaxy_info:
         - all
 
   galaxy_tags:
-    - shinobi cctv
-    - shinobi pro
-    - shinobi ce
+    - shinobicctv
+    - shinobipro
+    - shinobice
 
 dependencies:
   - charliemaiors.nodejs
