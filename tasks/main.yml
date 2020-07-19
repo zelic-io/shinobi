@@ -19,6 +19,8 @@
     update: true
     version: "{{ shinobi_version }}"
   when: ce
+  notify: restart shinobi
+
 - name: clone shinobi pro
   git:
     dest: "{{ ansible_env.HOME }}/Shinobi"
@@ -27,18 +29,24 @@
     update: true
     version: "{{ shinobi_version }}"
   when: pro
+  notify: restart shinobi
+
 - name: copy super user credentials
-  copy:
+  template:
     dest: "{{ ansible_env.HOME }}/Shinobi/super.json"
-    src: super.json
+    src: super.json.j2
+  notify: restart shinobi
+
 - name: define master key when is not defined and cluster is enabled
   set_fact:
     master_key: "{{ random_key }}"
   when: cluster and (master_key is not defined)
+
 - name: copy configuration
   template:
     dest: "{{ ansible_env.HOME }}/Shinobi/conf.json"
     src: conf.json.j2
+
 - name: remove sqlite dependency when not lts
   lineinfile:
     path: "{{ ansible_env.HOME }}/Shinobi/package.json"
