@@ -3,7 +3,7 @@
   "addStorage": [
       {"name":"second","path":"__DIR__/videos2"}
   ],
-  {% if ((cluster ~ '').lower() == "true" and cluster_role == "master") or ((cluster ~ '').lower() == "false") %}}
+  {% if ((cluster ~ '').lower() == "true" and cluster_role == "master") or ((cluster ~ '').lower() == "false") %}
   "passwordType": "{{ dbhash }}",
   "db": {
     "host": "{{ db_host }}",
