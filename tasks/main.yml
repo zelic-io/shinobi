@@ -45,28 +45,55 @@
     state: absent
     regexp: '\"sqlite3\"'
   when: not lts
+
 - name: Install npm requirements
   become: true
   npm:
-    path: Shinobi/
+    path: "{{ ansible_env.HOME }}/Shinobi"
+
 - name: Install pm2
   become: true
   npm:
     name: pm2
     global: true
     state: present
+
+- name:  Get users table
+  command: mysql -h {{ db_host }} -u {{ shinobi_user }} -p{{ shinobi_pass }} {{ db_name }} -Ns -e "SHOW TABLES LIKE 'Users'"
+  register: users_table
+  changed_when: false
+
+- name: Load Database
+  mysql_db:
+    name: "{{ db_name }}"
+    state: import
+    login_host: "{{ db_host }}"
+    login_user: "{{ shinobi_user }}"
+    login_password: "{{ shinobi_pass }}"
+    target: "{{ ansible_env.HOME }}/Shinobi/sql/framework.sql"
+  when: users_table.stdout == ""
+
 - name: Start shinobi camera
-  command: pm2 start camera.js
+  shell: pm2 start camera.js
   args:
     chdir: "{{ ansible_env.HOME }}/Shinobi"
-  changed_when: false
+  changed_when: "command_result.rc == 0"
+  register: command_result
+  failed_when: "command_result.rc != 0 and 'Script already launched' not in command_result.stderr"
+
 - name: Start shinobi cron when is on the master node
   command: pm2 start cron.js
   args:
     chdir: "{{ ansible_env.HOME }}/Shinobi"
   when: (cluster and cluster_role=="master") or (not cluster)
+  changed_when: "command_result.rc == 0"
+  register: command_result
+  failed_when: "command_result.rc != 0 and 'Script already launched' not in command_result.stderr"
+
 - name: Start shinobi at boot
-  command: pm2 save && pm2 startup
+  shell:
+    cmd: pm2 save && pm2 startup
+    creates: /etc/systemd/system/pm2-root.service
   args:
     chdir: "{{ ansible_env.HOME }}/Shinobi"
   when: startup
