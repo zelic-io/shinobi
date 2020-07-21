@@ -1,0 +1,4 @@
+- name: restart shinobi
+  command: pm2 restart cron.js camera.js
+  args:
+    chdir: "{{ ansible_env.HOME }}/Shinobi"

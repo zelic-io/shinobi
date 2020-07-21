@@ -4,5 +4,15 @@
   apt:
     update_cache: true
     force_apt_get: true
-    name: git
+    name: ['git', 'mysql-client']
+    state: present
+
+- name: Determine required MySQL Python libraries.
+  set_fact:
+    mysql_python_package_debian: "{% if 'python3' in ansible_python_interpreter|default('') %}python3-mysqldb{% else %}python-mysqldb{% endif %}"
+  when: mysql_python_package_debian is not defined
+
+- name: Ensure MySQL Python libraries are installed.
+  apt:
+    name: "{{ mysql_python_package_debian }}"
     state: present
